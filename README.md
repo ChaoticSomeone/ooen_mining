@@ -5,3 +5,5 @@ Daten die der Webscraper aktuell sammelt:
 - Titel der Artikel
 - Kostenpflichtigkeit der Artikel
 - Erscheinungsuhrzeit der Artikel
+- Ressort des Artikel
+- Anzahl der Kommentare
