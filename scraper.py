@@ -1,13 +1,11 @@
-"""
-ToDo:
- - Ressorts herauslesen
-"""
-
-
 # imports
 from bs4 import BeautifulSoup as bs
 from os.path import isfile
 import requests, json
+
+
+# Monatsauflistung
+months = ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
 
 
 # Dateinamen
@@ -67,20 +65,22 @@ for ressortLink in ressortLinksHTML:
 
 
 # Redakteur und Datum auslesen
-"""
 artikelLinksHTML = soup.find_all("a", class_="dreierTeaserVertikal__headline__link dreierTeaserVertikal__headline__link--fontSize")
 authors = []
 dates = []
 i = 0
 while i < len(artikelLinksHTML):
+    print(f"\r{'.' * (i % 3 + 1)}{' ' * (3 - i % 3 + 1)}", end="") # fancy loading (remove this line if it decreases performance)
     link = artikelLinksHTML[i]
     s = bs(requests.get(url + (link["href"][1:])).content, "html.parser")
     dataLine = s.find("div", class_="text-teaser text-darkgrey mb-32").text.replace("\n", "").replace("\t", "").replace(" ", "").strip().split(",")
+    authors.append(dataLine[0].split(" ", 1)[1])
+    date = list(filter(lambda text: text != "" ,dataLine[1].split(" ")))
+    if len(date) >= 3:
+        dates.append(f"{date[0]} {months.index(date[1]) + 1}. {date[2]}")
+    else:
+        dates.append("unknown")
     i += 1
-    print(dataLine.split(","))
-    with open("lines.txt", "a", encoding="utf-8") as f:
-        f.write(dataLine+"\n")
-"""
 
 
 # Gesammelte Daten als JSON speichern
@@ -93,9 +93,11 @@ i = 0
 while i < len(titles):
     data[titles[i]] = {
         "isPremium": plus[i],
+        "date": dates[i],
         "time": times[i],
         "comments": comments[i],
-        "ressort": ressorts[i]
+        "ressort": ressorts[i],
+        "author": authors[i]
     }
     i += 1
 data.update(prevData)
