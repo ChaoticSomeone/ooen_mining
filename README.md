@@ -7,3 +7,5 @@ Daten die der Webscraper aktuell sammelt:
 - Erscheinungsuhrzeit der Artikel
 - Ressort des Artikel
 - Anzahl der Kommentare
+- Redakteur
+- Erscheinungsdatum
