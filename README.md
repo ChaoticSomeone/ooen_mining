@@ -11,3 +11,6 @@ Daten die der Webscraper aktuell sammelt:
 - Anzahl der Kommentare
 - Redakteur
 - Erscheinungsdatum
+
+Features des Webscrapers:
+- Von UTF-8 auf ASCII Kodierung wechseln
