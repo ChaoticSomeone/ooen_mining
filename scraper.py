@@ -6,15 +6,20 @@ from os import system
 import requests, json
 import time
 
-
 # Monatsauflistung
-months = ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+months = ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November",
+          "Dezember"]
 
 # Dateinamen
 dataFile = "data.json"
 
+# Umlaute
+
+umlaute = ["ä", "ö", "ü", "Ä", "Ö", "Ü", "ß", "é"]
+umlauteReplace = ["ae", "oe", "ue", "Ae", "Oe", "Ue", "ss", "e"]
+
 # Config
-requestCooldown = 30 * 60 # Zeitspanne zwischen den Requests in Sekunden (Standardwert: 30 Minuten)
+requestCooldown = 3 * 60  # Zeitspanne zwischen den Requests in Sekunden (Standardwert: 60 Minuten)
 
 # Sonstige Variablen
 t1 = time.time()
@@ -23,6 +28,7 @@ newArticles = 0
 
 while True:
     import time
+
     t2 = time.time()
     if t2 - t1 >= requestCooldown or ignoreCooldown:
 
@@ -55,7 +61,8 @@ while True:
                 plus.append("ooen_plus" in p["class"])
 
         # Anzahl der Kommentare herauslesen
-        innerDivHTML = soup.find_all("div", class_="dreierTeaserVertikal__inner container__col--12 container__col--md6 container__col--lg6")
+        innerDivHTML = soup.find_all("div",
+                                     class_="dreierTeaserVertikal__inner container__col--12 container__col--md6 container__col--lg6")
         comments = []
         for div in innerDivHTML:
             bottomLine = div.find("p", class_="dreierTeaserVertikal__bottomLine")
@@ -65,32 +72,41 @@ while True:
                 comments.append(int(bottomLine.text.strip().split("\xa0")[0]))
 
         # Ressorts herauslesen
-        ressortLinksHTML = soup.find_all("a", class_="dreierTeaserVertikal__topline__link dreierTeaserVertikal__topline__link--ressort")
+        ressortLinksHTML = soup.find_all("a",
+                                         class_="dreierTeaserVertikal__topline__link dreierTeaserVertikal__topline__link--ressort")
         ressorts = []
         for ressortLink in ressortLinksHTML:
             splitLink = ressortLink["href"].split("/")
             filteredLink = list(filter(lambda text: len(text) > 0, splitLink))
-            if len(filteredLink) > 0:
-                if filteredLink[0] == "oberoesterreich":
-                    filteredLink[0] = "lokales"
-                ressort = filteredLink[0].title()
-            else:
-                ressort = "keine Angabe"
-            ressorts.append(ressort)
+            try:
+                if len(filteredLink) > 0:
+                    if filteredLink[0] == "oberoesterreich":
+                        filteredLink[0] = "lokales"
+                    ressort = filteredLink[0].title()
+                else:
+                    ressort = "keine Angabe"
+                ressorts.append(ressort)
+            except:
+                ressorts.append("keine Angabe")
 
         # Redakteur und Datum auslesen
-        artikelLinksHTML = soup.find_all("a",class_="dreierTeaserVertikal__headline__link dreierTeaserVertikal__headline__link--fontSize")
+        artikelLinksHTML = soup.find_all("a",
+                                         class_="dreierTeaserVertikal__headline__link dreierTeaserVertikal__headline__link--fontSize")
         authors = []
         dates = []
         i = 0
         while i < len(artikelLinksHTML):
-            print(f"\r{'.' * (i % 3 + 1)}{' ' * (3 - i % 3 + 1)}", end="")  # fancy loading (remove this line if it decreases performance)
+            print(f"\r{'.' * (i % 3 + 1)}{' ' * (3 - i % 3 + 1)}",
+                  end="")  # fancy loading (remove this line if it decreases performance)
             link = artikelLinksHTML[i]
             s = bs(requests.get(url + (link["href"][1:])).content, "html.parser")
             temp = s.find("div", class_="text-teaser text-darkgrey mb-32")
             if temp is not None:
-                dataLine = temp.text.replace("\n", "").replace("\t", "").replace(" ", "").strip().split(",")
-                authors.append(dataLine[0].split(" ", 1)[1])
+                try:
+                    dataLine = temp.text.replace("\n", "").replace("\t", "").replace(" ", "").strip().split(",")
+                    authors.append(dataLine[0].split(" ", 1)[1])
+                except:
+                    authors.append("unknown")
                 try:
                     date = list(filter(lambda text: text != "", dataLine[1].split(" ")))
                 except:
@@ -114,6 +130,20 @@ while True:
             except json.decoder.JSONDecodeError:
                 prevData = {}
         i = 0
+        while i < len(authors):
+            j = 0
+            while j < len(umlaute):
+                authors[i] = authors[i].replace(umlaute[j], umlauteReplace[j])
+                j += 1
+            i += 1
+        i = 0
+        while i < len(titles):
+            j = 0
+            while j < len(umlaute):
+                titles[i] = titles[i].replace(umlaute[j], umlauteReplace[j])
+                j += 1
+            i += 1
+        i = 0
         while i < len(titles):
             data[titles[i]] = {
                 "isPremium": plus[i],
@@ -132,9 +162,12 @@ while True:
             json.dump(data, f, indent=4)
 
         # Folgende Zeilen dürfen entfernt werden
-        if getOS() == "Windows": system("cls")
-        elif getOS() == "Linux": system("clear")
+        if getOS() == "Windows":
+            system("cls")
+        elif getOS() == "Linux":
+            system("clear")
         print(f"{newArticles} neue Artikel gefunden und gespeichert!")
 
     # Wartemeldung (darf auch entfernt werden)
-    else: print("\rWarten auf Cooldown...", end="")
+    else:
+        print("\rWarten auf Cooldown...", end="")
