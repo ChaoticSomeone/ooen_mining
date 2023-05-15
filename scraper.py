@@ -101,6 +101,7 @@ while True:
                     dates.append("unknown")
             else:
                 authors.append("unknown")
+                dates.append("unknown")
             i += 1
 
         # Gesammelte Daten als JSON speichern
