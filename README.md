@@ -1,7 +1,7 @@
 # OÖN Mining
 Statistische Auswertung der Online-Ausgabe der OÖN
 
-<a href=="https://github.com/cannondale-f500/ooen_output">Data Sheets</a>
+<a href="https://github.com/cannondale-f500/ooen_output">Data Sheets</a>
 
 Daten die der Webscraper aktuell sammelt:
 - Titel der Artikel
