@@ -19,7 +19,7 @@ umlaute = ["ä", "ö", "ü", "Ä", "Ö", "Ü", "ß", "é"]
 umlauteReplace = ["ae", "oe", "ue", "Ae", "Oe", "Ue", "ss", "e"]
 
 # Config
-requestCooldown = 3 * 60  # Zeitspanne zwischen den Requests in Sekunden (Standardwert: 60 Minuten)
+requestCooldown = 60 * 60  # Zeitspanne zwischen den Requests in Sekunden (Standardwert: 60 Minuten)
 
 # Sonstige Variablen
 t1 = time.time()
