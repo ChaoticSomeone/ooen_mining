@@ -7,7 +7,6 @@ with open("../data.json", "r", encoding="utf-8") as f:
 times = {}
 for i in range(0,24):
 	times[("0" if i < 10 else "") + f"{i}"] = [0, 0]
-print(*times.keys())
 for article in data:
 	times[data[article]["time"].split(":")[0]][0] += 1
 	if data[article]["isPremium"]: times[data[article]["time"].split(":")[0]][1] += 1
